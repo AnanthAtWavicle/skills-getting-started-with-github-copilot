@@ -13,6 +13,12 @@ document.addEventListener("DOMContentLoaded", () => {
       // Clear loading message
       activitiesList.innerHTML = "";
 
+      // Clear and reset activity select dropdown
+      while (activitySelect.options.length > 1) {
+        activitySelect.remove(1);
+      }
+      activitySelect.value = "";
+
       // Populate activities list
       Object.entries(activities).forEach(([name, details]) => {
         const activityCard = document.createElement("div");
@@ -20,13 +26,24 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const spotsLeft = details.max_participants - details.participants.length;
 
+        const participantsHtml = details.participants.length > 0 
+          ? `<ul class="participants-list">${details.participants.map(p => `<li><span class="participant-email">${p}</span> <button class="delete-btn" data-email="${p}" data-activity="${name}" title="Remove participant">🗑️</button></li>`).join('')}</ul>`
+          : '<p class="no-participants">🚀 No participants yet</p>';
+
         activityCard.innerHTML = `
-          <h4>${name}</h4>
-          <p>${details.description}</p>
-          <p><strong>Schedule:</strong> ${details.schedule}</p>
-          <p><strong>Availability:</strong> ${spotsLeft} spots left</p>
-          <p><strong>Participants:</strong></p>
-          ${details.participants.length > 0 ? `<ul class="participants-list">${details.participants.map(p => `<li><span>${p}</span> <button class="delete-btn" data-email="${p}" data-activity="${name}">×</button></li>`).join('')}</ul>` : '<p>No participants yet</p>'}
+          <div class="card-header">
+            <h4>${name}</h4>
+            <span class="availability-badge" style="background-color: ${spotsLeft > 5 ? '#4caf50' : spotsLeft > 0 ? '#ff9800' : '#f44336'}">${spotsLeft}</span>
+          </div>
+          <p class="description">${details.description}</p>
+          <div class="card-details">
+            <p><strong>⏰ Schedule:</strong> ${details.schedule}</p>
+            <p><strong>👥 Capacity:</strong> ${details.participants.length}/${details.max_participants}</p>
+          </div>
+          <div class="participants-section">
+            <h5>📋 Participants</h5>
+            ${participantsHtml}
+          </div>
         `;
 
         activitiesList.appendChild(activityCard);
